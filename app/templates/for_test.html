@@ -23,6 +23,11 @@
     </fieldset>
 </form>
 
+<p>If you don't have an account, please go to welcome page and sign up!</p>
+<form action="{{url_for('main')}}" method="get">
+    <input type="submit" value="Welcome">
+</form>
+
 <script>
     function myFunction(){
     document.getElementById("testForm").reset();
