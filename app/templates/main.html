@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome!</h2>
+<form action="{{url_for('user_login')}}" method="post">
+    <fieldset>
+        <legend>Login:</legend>
+        username:<br>
+        <input type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
+        password:<br>
+        <input type="password" name="pwd" required><br><br>
+        <p id="login_error">{{login_error_msg if login_error_msg != None}}</p>
+        <input type="submit" name="login" value="login">
+    </fieldset>
+</form>
+
+<b>Don't have an account? Sign up here!</b>
+
+<form action="{{url_for('user_signup')}}" method="post">
+    <fieldset>
+        <legend>Signup:</legend>
+        username:<br>
+        <input type="text" name="newusrn" value="{{sign_username if sign_username != None}}" required>6 to 20 characters<br>
+        password:<br>
+        <input type="password" name="newpwd" required>6 to 20 characters<br><br>
+        <p id="signup_response">{{signup_error_msg if signup_error_msg != None}}</p>
+        <input type="submit" name="signup" value="signup">
+    </fieldset>
+</form>
+{% endblock %}

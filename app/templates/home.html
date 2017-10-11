@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="{{url_for('file_upload', username=username)}}" method="get">
+        <input type="submit" value="Upload">
+    </form>
+
+    <form action="{{url_for('logout', username=username)}}" method="get">
+        <input type="submit" value="Log out" class="logout">
+    </form>
+
+    <ul>
+        {% for row in cursor %}
+            <li class="photo_list">
+                <div class="photo_item">
+                    <div class="photo_thumbnail">
+                        <a href="{{url_for('image_display', username=username, img_id=row[0])}}" target="_blank">
+                            <img src="{{url_for('static', filename='photos/'+username+'/thumbnail_'+row[2])}}"
+                                 alt="thumbnail" style="width:150px;height:150px;">
+                        </a>
+                    </div>
+                    <div class="photo_name">
+                        <span>{{ row[1] }}</span>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}

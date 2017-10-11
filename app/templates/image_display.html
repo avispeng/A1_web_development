@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Your photo is here.</h2>
+    original:
+    <img src="{{url_for('static', filename='photos/'+username+'/'+filename)}}" alt="{{filename}}"><br>
+    scaled up:
+    <img src="{{url_for('static', filename='photos/'+username+'/scaleup_'+filename)}}" alt="transformation"><br>
+    scaled down:
+    <img src="{{url_for('static', filename='photos/'+username+'/scaledown_'+filename)}}" alt="transformation"><br>
+    black and white:
+    <img src="{{url_for('static', filename='photos/'+username+'/grayscale_'+filename)}}" alt="transformation"><br>
+    Photo name:{{img_name}}<br>
+    Photo location:{{location}}<br>
+    Photo description:{{description}}<br>
+
+{% endblock %}

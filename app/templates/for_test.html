@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ title }}</h2>
+<form id="testForm" action="{{url_for('test_file_upload')}}" method="post" enctype="multipart/form-data">
+    <fieldset>
+        <legend>Login and upload a photo:</legend>
+        username:
+        <input type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
+        password:
+        <input type="password" name="pwd" required><br>
+        Choose a photo to upload.
+        <input type="file" name="myFile" value="Browse" required><br>
+        photo name:(optional)
+        <input type="text" name="img_name"><br>
+        location:(optional)
+        <input type="text" name="location"><br>
+        description:(optional)<br>
+        <textarea name="description" style="width: 50%; height: 100px;"
+                  placeholder="What were you thinking when you took this photo?"></textarea>
+        <p id="login_error">{{login_error_msg if login_error_msg != None}}</p>
+        <input type="submit" name="login" value="login and upload">
+        <input type="button" onclick="myFunction()" value="Reset">
+    </fieldset>
+</form>
+
+<script>
+    function myFunction(){
+    document.getElementById("testForm").reset();
+    }
+</script>
+{% endblock %}

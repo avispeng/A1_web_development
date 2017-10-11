@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Upload a new photo.</h2>
+    <form action="{{url_for('file_uploaded', username=username)}}" method="post" enctype="multipart/form-data">
+        <input type="file" name="myFile" value="Browse" required><br>
+        photo name:(optional)<br>
+        <input type="text" name="img_name"><br>
+        location:(optional)<br>
+        <input type="text" name="location"><br>
+        description:(optional)<br>
+        <textarea name="description" style="width: 50%; height: 100px;"
+                  placeholder="What were you thinking when you took this photo?"></textarea>
+        <p>{{error_message if error_message != None}}</p>
+        <input type="submit" value="Save">
+    </form>
+
+
+{% endblock %}
