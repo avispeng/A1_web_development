@@ -191,6 +191,16 @@ def file_uploaded(username):
     allowed_ext = set(['jpg','jpeg','png','gif'])
     f = request.files['myFile']
     fn = f.filename
+    # handling filename length
+    if len(fn) > 30:
+        try:
+            rez = fn.split(".")
+            fn = rez[0][0:15] + "." + rez[1]
+            print("fn formatted is: " + fn)
+        except:
+            # invalid file input
+            return redirect(url_for('home_page', username=session['username']))
+
     img_name = request.form.get('img_name',"")
     if img_name == "":
         img_name = fn

@@ -1,12 +1,33 @@
 {% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<style>
+input[type=submit] {
+    font-size: 24px;
+    box-sizing: border-box;
+    width: 50%;
+    padding: 1%;
+    background: lightgrey;
+    border: 3px solid #555;
+    color: #fff;
+    }
+input[type=submit]:hover{
+    background: lightblue;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-    <form action="{{url_for('file_upload', username=username)}}" method="get">
-        <input type="submit" value="Upload">
+    <div>
+    <form  action="{{url_for('file_upload', username=username)}}" method="get">
+        <input type="submit" value="Upload" style="float:left">
     </form>
 
     <form action="{{url_for('logout', username=username)}}" method="get">
-        <input type="submit" value="Log out" class="logout">
+        <input type="submit" value="Log out">
     </form>
+
+    </div>
 
     <ul>
         {% for row in cursor %}
@@ -19,7 +40,7 @@
                         </a>
                     </div>
                     <div class="photo_name">
-                        <span>{{ row[1] }}</span>
+                        <h5><span style="color:blue">Title: </span> {{ row[1] }}</h5>
                     </div>
                 </div>
             </li>

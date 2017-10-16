@@ -1,9 +1,54 @@
 {% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+input.big {
+    font-size: 24px;
+    box-sizing: border-box;
+    width: 50%;
+    padding: 1%;
+    background: lightgrey;
+    border: 3px solid #555;
+    color: #fff;
+}
+
+input.big:hover{
+    background: lightblue;
+}
+
+input[type=file]{
+    background-color: lightgrey;
+    border: none;
+    color: white;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+input[type=file]:hover{
+    background: lightblue;
+}
+
+form.register{
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}
+
 {% block content %}
+
+
 <h2>{{ title }}</h2>
+<form class="register" action="{{url_for('main')}}" method="get">
+    <b>Notice:</b>&nbsp; If you don't have an account, please go to welcome page and sign up!
+    <input type="submit" value="Welcome">
+</form>
+
 <form id="testForm" action="{{url_for('test_file_upload')}}" method="post" enctype="multipart/form-data">
     <fieldset>
+
         <legend>Login and upload a photo:</legend>
+        
         username:
         <input type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
         password:
@@ -17,15 +62,12 @@
         description:(optional)<br>
         <textarea name="description" style="width: 50%; height: 100px;"
                   placeholder="What were you thinking when you took this photo?"></textarea>
+        
         <p id="login_error">{{login_error_msg if login_error_msg != None}}</p>
-        <input type="submit" name="login" value="login and upload">
-        <input type="button" onclick="myFunction()" value="Reset">
-    </fieldset>
-</form>
+        <input type="submit" class="big" name="login" value="login and upload" style="float:left">
+        <input type="button" class="big" onclick="myFunction();" value="Reset" style="float:right">
 
-<p>If you don't have an account, please go to welcome page and sign up!</p>
-<form action="{{url_for('main')}}" method="get">
-    <input type="submit" value="Welcome">
+    </fieldset>
 </form>
 
 <script>

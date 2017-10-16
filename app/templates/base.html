@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+     <link rel="stylesheet" type="text/css" href={{url_for('static',
+                filename="css/styles.css")}}>
+    {% block head %}
     <style>
         li.photo_list {
             display: inline-block;
@@ -12,10 +15,14 @@
     </style>
     <meta charset="UTF-8">
     <title>{{title}}</title>
+     {% endblock %}
 </head>
+
 <body>
-    <h1>{{title}}</h1>
+<h1 align="center">{{title}} {% block image %} {% endblock %} </h1>
     {% block content %}
     {% endblock %}
 </body>
+
+
 </html>

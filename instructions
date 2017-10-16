@@ -1,6 +1,7 @@
-all those instructions are working fine on Ubuntu 16.04
+All those instructions are tested to work on Ubuntu 16.04
 
-1.install python 3.5, mysql, mysql-workbench, mysql-connector-python on your machine
+1.install python 3.5, mysql, mysql-workbench, imagemagick and wand on your machine
+$ sudo apt-get install python3-wand
 
 2.navigate into the project folder 'photo_browse', and create a virtual environment
 $ python3 -m venv flask
@@ -8,9 +9,10 @@ $ python3 -m venv flask
 3.activate the venv
 $ source flask/bin/activate
 
-4.install flask and wand(an ImageMagick binding for python)
-$ flask/bin/pip install flask
-$ sudo apt-get install python3-wand
+4.install flask, wand(an ImageMagick binding for python), and mysql-connector-python
+$ flask/bin/pip3 install flask
+$ flask/bin/pip3 install wand
+$ flask/bin/pip3 install mysql-connector-python-rf --egg
 
 5.use mysql-workbench to run sql script 'photo_browser_sql.sql', creating a database for use
 
