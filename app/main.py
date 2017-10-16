@@ -215,7 +215,7 @@ def file_uploaded(username):
             with img.convert('jpg') as converted1:
                 # create thumbnail
                 if size[0] < size[1]:
-                    converted1.crop((0, size[1] - size[0]) // 2, width=size[0], height=size[0])
+                    converted1.crop(0, (size[1] - size[0]) // 2, width=size[0], height=size[0])
                 else:
                     converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                 converted1.sample(150, 150)
