@@ -32,6 +32,11 @@ input[type=file]:hover{
 form.register{
     font-size: 0.9em;
 }
+
+input.box {
+    margin:5px 0px 5px 0px;
+}
+
 </style>
 {% endblock %}
 
@@ -50,17 +55,17 @@ form.register{
         <legend>Login and upload a photo:</legend>
         
         username:
-        <input type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
+        <input class="box" type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
         password:
-        <input type="password" name="pwd" required><br>
+        <input class="box" type="password" name="pwd" required><br>
         Choose a photo to upload.
-        <input type="file" name="myFile" value="Browse" required><br>
+        <input class="box" type="file" name="myFile" value="Browse" required><br>
         photo name:(optional)
-        <input type="text" name="img_name"><br>
+        <input class="box" type="text" name="img_name"><br>
         location:(optional)
-        <input type="text" name="location"><br>
+        <input class="box" type="text" name="location"><br>
         description:(optional)<br>
-        <textarea name="description" style="width: 50%; height: 100px;"
+        <textarea class="box" name="description" style="width: 50%; height: 100px;"
                   placeholder="What were you thinking when you took this photo?"></textarea>
         
         <p id="login_error">{{login_error_msg if login_error_msg != None}}</p>

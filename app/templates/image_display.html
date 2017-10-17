@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+
 {% block content %}
-    <h2>Your photo is here.</h2>
-    <div>
+    <h2 style="font-size:2em;font-family:Georgia,'Times New Roman',Times,serif;">Your photo is here.</h2>
+    <div style="margin-left:10px;">
         <p><span style="color:blue;font-weight:bold"> Photo name: </span>
             {{img_name}} <br>
         <span style="color:blue;font-weight:bold"> Photo location:  </span>
@@ -9,22 +10,22 @@
         <span style="color:blue;font-weight:bold"> Photo description: </span>
             {{description}}</p>
     </div>
-    <div>
+    <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey">original:</h2>
         <img src="{{url_for('static', filename='photos/'+username+'/'+filename)}}"
              alt="{{filename}}">
     </div>
-    <div>
+    <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey">scale up:</h2>
         <img src="{{url_for('static', filename='photos/'+username+'/scaleup_'+filename)}}"
          alt="transformation">
     </div>
-    <div>
+    <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey">scaled down:</h2>
         <img src="{{url_for('static', filename='photos/'+username+'/scaledown_'+filename)}}"
          alt="transformation">
     </div>
-    <div>
+    <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey" >black and white:</h2>
         <img src="{{url_for('static', filename='photos/'+username+'/grayscale_'+filename)}}"
          alt="transformation">
