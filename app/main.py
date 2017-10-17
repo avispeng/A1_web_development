@@ -11,8 +11,10 @@ webapp.secret_key = os.urandom(24)
 
 @webapp.route('/',methods=['GET'])
 @webapp.route('/index',methods=['GET'])
-# Display an HTML page with links
 def main():
+    """
+    Display the welcome page where you could login or sign up.
+    """
     return render_template("main.html",title="Photos Browser")
 
 
@@ -118,6 +120,10 @@ def user_signup():
 
 @webapp.route('/home/<username>', methods=['GET'])
 def home_page(username):
+    """
+    Display a list of thumbnails of pre-uploaded pictures of the authenticated user.
+    :param username: the username of the authenticated user.
+    """
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
@@ -144,6 +150,12 @@ def logout(username):
 
 @webapp.route('/home/<username>/<int:img_id>', methods=['GET'])
 def image_display(username, img_id):
+    """
+    Display the picture's information, the original picture and its tranformations
+    after clicking on the thumbnail on home page.
+    :param username: the username of the authenticated user.
+    :param img_id: the image id of the image corresponding to the thumbnail the user clicked on.
+    """
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
@@ -180,6 +192,10 @@ def file_upload(username):
 
 @webapp.route('/home/<username>/upload', methods=['POST'])
 def file_uploaded(username):
+    """
+    Process the information the user entered and the file uploaded from the file upload page.
+    :param username: the username of the authenticated user.
+    """
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
@@ -252,6 +268,9 @@ def file_uploaded(username):
 
 @webapp.route('/test/FileUpload', methods=['GET','POST'])
 def test_file_upload():
+    """
+    A test page for file upload where you could login with valid username and password and upload a picture at the same time.
+    """
     if request.method == 'GET':
         return render_template("for_test.html", title="File Upload Test")
 
