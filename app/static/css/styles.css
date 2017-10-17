@@ -2,7 +2,7 @@ body.frontcover {
     /* note url always with respect to itself*/
     background-image: url({{ url_for('static', filename='images/background.jpg')}});
     background-size: cover;
-    background-repeat: no-repeat;        /*repeat-x, repeat-y*/
+    background-repeat: repeat-y;        /*repeat-x, repeat-y*/
 }
 
 h1.front{
