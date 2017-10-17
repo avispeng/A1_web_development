@@ -4,9 +4,10 @@
 <style>
 body.frontcover {
     /* note url always with respect to itself*/
-    background-image: url({{ url_for('static', filename='images/background2.jpg')}});
-    background-size: cover;
-    background-repeat: no-repeat;        /*repeat-x, repeat-y*/
+    background-image: url({{ url_for('static', filename='images/smiley.gif')}});
+    background-size: 47%;
+    background-repeat: repeat-y;        /*repeat-x, repeat-y*/
+    background-position: right;
 }
 </style>
 <body class="frontcover">
@@ -15,7 +16,7 @@ body.frontcover {
 {% block content %}
 <h2 class="grey">Welcome! {% block image %} {% endblock %} </h2>
 <form action="{{url_for('user_login')}}" method="post">
-    <fieldset>
+    <fieldset style="width:50%;">
         <legend>Login:</legend>
         username:<br>
         <input type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
@@ -30,7 +31,7 @@ body.frontcover {
 
 <form action="{{url_for('user_signup')}}" method="post">
     <br>
-    <fieldset>
+    <fieldset style="width:50%;">
         <legend>Signup:</legend>
         username:<br>
         <input type="text" name="newusrn" value="{{sign_username if sign_username != None}}" required>6 to 20 characters<br>
