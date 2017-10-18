@@ -21,5 +21,8 @@ h2.grey{
 p.display{
     font-family: Georgia, "Times New Roman", Times, serif;
     font-size: 20px;
+}
 
+p.errormsg{
+    color: red;
 }

@@ -43,7 +43,7 @@ input[type=file]:hover{
         <p class="display">Description: <span style="color:grey">(optional)</span><br>
         <textarea name="description" style="width: 50%; height: 100px;"
                   placeholder="What were you thinking when you took this photo?"></textarea></p>
-        <p>{{error_message if error_message != None}}</p>
+        <p class="errormsg">{{error_message if error_message != None}}</p>
         <input type="submit" value="Save" class="save">
     </form>
 
