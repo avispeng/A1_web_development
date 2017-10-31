@@ -9,17 +9,21 @@ $ python3 -m venv flask
 3.activate the venv
 $ source flask/bin/activate
 
-4.install flask, wand(an ImageMagick binding for python), and mysql-connector-python, boto3, gunicorn
+4.install flask, wand(an ImageMagick binding for python), and mysql-connector-python, boto3, awscli, gunicorn
 $ flask/bin/pip3 install flask
 $ flask/bin/pip3 install wand
 $ flask/bin/pip3 install mysql-connector-python-rf --egg
+$ flask/bin/pip3 install boto3
+$ flask/bin/pip3 install awscli
 
-5.use mysql-workbench to run sql script 'photo_browser_sql.sql', creating a database for use
+5.configure aws
+$ aws configure
 
-6.change the value of 'password' in app/config.py to your mysql password
+6.
+$ chmod +x ./run.sh
 
-7.run
-$ python3 run.py
+7.
+$ sudo ./run.sh
 
 
 

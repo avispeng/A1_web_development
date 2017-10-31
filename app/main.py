@@ -246,28 +246,40 @@ def file_uploaded(username):
                 else:
                     converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                 converted1.sample(150, 150)
-                # converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
-                # save the thumbnail to s3
-                bucket.upload_fileobj(converted1, username + '/thumbnail_' + fn)
+                # save to local, read, save to s3, delete it from local
+                converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
+                thumb = open(os.path.join(fpath, "thumbnail_"+fn), 'r')
+                bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
+                os.remove(os.path.join(fpath, "thumbnail_"+fn))
             with img.convert('jpg') as converted2:
                 # scale up
                 converted2.resize(int(size[0]*1.2), int(size[1]*1.2))
                 # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                 # save the scaled-up to s3
-                bucket.upload_fileobj(converted2, username + '/scaleup_' + fn)
+                converted2.save(filename=os.path.join(fpath, '/scaleup_' + fn))
+                scaleup = open(os.path.join(fpath, '/scaleup_' + fn), 'r')
+                bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
+                os.remove(os.path.join(fpath, '/scaleup_' + fn))
+
             with img.convert('jpg') as converted3:
                 # scale down
                 converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                 # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                 # save the scaled down to s3
-                bucket.upload_fileobj(converted3, username + '/scaledown_' + fn)
+                converted3.save(filename=os.path.join(fpath, '/scaledown_' + fn))
+                scaledown = open(os.path.join(fpath, '/scaledown_' + fn), 'r')
+                bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
+                os.remove(os.path.join(fpath, '/scaledown_' + fn))
             with img.convert('jpg') as converted4:
                 # grayscale
                 converted4.type = 'grayscale'
                 # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                 # save the grayscale to s3
-                bucket.upload_fileobj(converted4, username + '/grayscale_' + fn)
-        # delete the image from local storage
+                converted4.save(filename=os.path.join(fpath, '/grayscale_' + fn))
+                grayscale = open(os.path.join(fpath, '/grayscale_' + fn), 'r')
+                bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
+                os.remove(os.path.join(fpath, '/grayscale_' + fn))
+        # delete the original image from local storage
         os.remove(os.path.join(fpath, fn))
 
         cnx = get_db()
@@ -351,27 +363,39 @@ def test_file_upload():
                         else:
                             converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                         converted1.sample(150, 150)
-                        # converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
-                        # save the thumbnail to s3
-                        bucket.upload_fileobj(converted1, username + '/thumbnail_' + fn)
+                        # save to local, read, save to s3, delete it from local
+                        converted1.save(filename=os.path.join(fpath, "thumbnail_" + fn))
+                        thumb = open(os.path.join(fpath, "thumbnail_" + fn), 'r')
+                        bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
+                        os.remove(os.path.join(fpath, "thumbnail_" + fn))
                     with img.convert('jpg') as converted2:
                         # scale up
                         converted2.resize(int(size[0] * 1.2), int(size[1] * 1.2))
                         # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                         # save the scaled-up to s3
-                        bucket.upload_fileobj(converted2, username + '/scaleup_' + fn)
+                        converted2.save(filename=os.path.join(fpath, '/scaleup_' + fn))
+                        scaleup = open(os.path.join(fpath, '/scaleup_' + fn), 'r')
+                        bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
+                        os.remove(os.path.join(fpath, '/scaleup_' + fn))
+
                     with img.convert('jpg') as converted3:
                         # scale down
                         converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                         # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                         # save the scaled down to s3
-                        bucket.upload_fileobj(converted3, username + '/scaledown_' + fn)
+                        converted3.save(filename=os.path.join(fpath, '/scaledown_' + fn))
+                        scaledown = open(os.path.join(fpath, '/scaledown_' + fn), 'r')
+                        bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
+                        os.remove(os.path.join(fpath, '/scaledown_' + fn))
                     with img.convert('jpg') as converted4:
                         # grayscale
                         converted4.type = 'grayscale'
                         # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                         # save the grayscale to s3
-                        bucket.upload_fileobj(converted4, username + '/grayscale_' + fn)
+                        converted4.save(filename=os.path.join(fpath, '/grayscale_' + fn))
+                        grayscale = open(os.path.join(fpath, '/grayscale_' + fn), 'r')
+                        bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
+                        os.remove(os.path.join(fpath, '/grayscale_' + fn))
                 # delete the image from local storage
                 os.remove(os.path.join(fpath, fn))
 
