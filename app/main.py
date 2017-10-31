@@ -6,6 +6,7 @@ import mysql.connector
 from app.config import db_config
 import os
 from wand.image import Image
+import boto3
 
 webapp.secret_key = os.urandom(24)
 
@@ -132,14 +133,14 @@ def home_page(username):
 
     cnx = get_db()
     cursor = cnx.cursor(buffered=True)
-    fpath = './app/static/photos/{}'.format(username)
-    if not os.path.exists(fpath):
-        os.makedirs(fpath)
+    # fpath = './app/static/photos/{}'.format(username)
+    # if not os.path.exists(fpath):
+    #     os.makedirs(fpath)
     query = '''SELECT images.img_id, images.img_name, images.filename FROM images, 
     users WHERE users.username = %s AND images.owned_by = users.user_id'''
     cursor.execute(query, (username,))  # current login user
 
-    return render_template("home.html", title="Your photos", cursor=cursor, username=username, fpath=fpath)
+    return render_template("home.html", title="Your photos", cursor=cursor, username=username)
 
 
 @webapp.route('/home/<username>/logout', methods=['GET'])
@@ -203,7 +204,8 @@ def file_uploaded(username):
         return redirect(url_for('home_page', username=session['username']))
 
     # where to store the image
-    fpath = './app/static/photos/{}'.format(username)
+    # fpath = './app/static/photos/{}'.format(username)
+    fpath = './app/static'
     allowed_ext = set(['jpg','jpeg','png','gif'])
     f = request.files['myFile']
     fn = f.filename
@@ -224,8 +226,18 @@ def file_uploaded(username):
         img_name = img_name[:20]
     location = request.form.get('location',"")
     description = request.form.get('description',"")
+
+    # connect to s3
+    s3 = boto3.resource('s3')
+    buckets = s3.buckets.all()
+    bucket = buckets[0]
+
     if '.' in fn and fn.rsplit('.',1)[1].lower() in allowed_ext:
+        # save to local storage first
         f.save(os.path.join(fpath, fn))
+        # save the original picture to s3
+        s3.upload_fileobj(f, bucket.name, username+'/'+fn)
+
         with Image(filename=os.path.join(fpath, fn)) as img:
             size = img.size
             with img.convert('jpg') as converted1:
@@ -235,19 +247,29 @@ def file_uploaded(username):
                 else:
                     converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                 converted1.sample(150, 150)
-                converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
+                # converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
+                # save the thumbnail to s3
+                s3.upload_fileobj(converted1, bucket.name, username + '/thumbnail_' + fn)
             with img.convert('jpg') as converted2:
                 # scale up
                 converted2.resize(int(size[0]*1.2), int(size[1]*1.2))
-                converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
+                # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
+                # save the scaled-up to s3
+                s3.upload_fileobj(converted2, bucket.name, username + '/scaleup_' + fn)
             with img.convert('jpg') as converted3:
                 # scale down
                 converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
-                converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
+                # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
+                # save the scaled down to s3
+                s3.upload_fileobj(converted3, bucket.name, username + '/scaledown_' + fn)
             with img.convert('jpg') as converted4:
                 # grayscale
                 converted4.type = 'grayscale'
-                converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
+                # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
+                # save the grayscale to s3
+                s3.upload_fileobj(converted4, bucket.name, username + '/grayscale_' + fn)
+        # delete the image from local storage
+        os.remove(os.path.join(fpath, fn))
 
         cnx = get_db()
         cursor = cnx.cursor(buffered=True)
@@ -299,7 +321,7 @@ def test_file_upload():
         if hashed_pwd == hashlib.sha256(pwd.encode()).hexdigest():
             # add to the session
             session['username'] = username
-            fpath = './app/static/photos/{}'.format(username)
+            fpath = './app/static'
             allowed_ext = set(['jpg', 'jpeg', 'png', 'gif'])
             f = request.files['myFile']
             fn = f.filename
@@ -310,30 +332,50 @@ def test_file_upload():
                 img_name = img_name[:20]
             location = request.form.get('location', "")
             description = request.form.get('description', "")
+
+            # connect to s3
+            s3 = boto3.resource('s3')
+            buckets = s3.buckets.all()
+            bucket = buckets[0]
+
             if '.' in fn and fn.rsplit('.', 1)[1].lower() in allowed_ext:
+                # save to local storage first
                 f.save(os.path.join(fpath, fn))
+                # save the original picture to s3
+                s3.upload_fileobj(f, bucket.name, username + '/' + fn)
+
                 with Image(filename=os.path.join(fpath, fn)) as img:
                     size = img.size
                     with img.convert('jpg') as converted1:
                         # create thumbnail
                         if size[0] < size[1]:
-                            converted1.crop((0, size[1] - size[0]) // 2, width=size[0], height=size[0])
+                            converted1.crop(0, (size[1] - size[0]) // 2, width=size[0], height=size[0])
                         else:
                             converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                         converted1.sample(150, 150)
-                        converted1.save(filename=os.path.join(fpath, "thumbnail_" + fn))
+                        # converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
+                        # save the thumbnail to s3
+                        s3.upload_fileobj(converted1, bucket.name, username + '/thumbnail_' + fn)
                     with img.convert('jpg') as converted2:
                         # scale up
                         converted2.resize(int(size[0] * 1.2), int(size[1] * 1.2))
-                        converted2.save(filename=os.path.join(fpath, "scaleup_" + fn))
+                        # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
+                        # save the scaled-up to s3
+                        s3.upload_fileobj(converted2, bucket.name, username + '/scaleup_' + fn)
                     with img.convert('jpg') as converted3:
                         # scale down
                         converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
-                        converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
+                        # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
+                        # save the scaled down to s3
+                        s3.upload_fileobj(converted3, bucket.name, username + '/scaledown_' + fn)
                     with img.convert('jpg') as converted4:
                         # grayscale
                         converted4.type = 'grayscale'
-                        converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
+                        # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
+                        # save the grayscale to s3
+                        s3.upload_fileobj(converted4, bucket.name, username + '/grayscale_' + fn)
+                # delete the image from local storage
+                os.remove(os.path.join(fpath, fn))
 
                 cnx = get_db()
                 cursor = cnx.cursor(buffered=True)
@@ -341,7 +383,7 @@ def test_file_upload():
                 cursor.execute(query, (username,))
                 user_id = cursor.fetchone()[0]
                 query = '''INSERT INTO images (img_id, img_name, location, description, owned_by, filename)
-                    VALUES (NULL, %s, %s, %s, %s, %s)'''
+                VALUES (NULL, %s, %s, %s, %s, %s)'''
                 cursor.execute(query, (img_name, location, description, user_id, fn))
                 cnx.commit()
                 return redirect(url_for('home_page', username=username))
@@ -349,8 +391,8 @@ def test_file_upload():
                 error = True
                 error_msg = "Error: Invalid photo format! Please choose from jpg, jpeg, gif, png!"
                 if error:
-                    return render_template("for_test.html", title="File Upload Test", login_error_msg=error_msg,
-                                           log_username=username)
+                    return render_template("file_upload.html", title="Upload your photo", username=username,
+                                           error_message=error_msg)
         else:
             error = True
             error_msg = "Error: Wrong password or username! Please try again!"

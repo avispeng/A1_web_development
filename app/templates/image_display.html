@@ -12,22 +12,22 @@
     </div>
     <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey">original:</h2>
-        <img src="{{url_for('static', filename='photos/'+username+'/'+filename)}}"
+        <img src="{{url_for('https://cloud-computing-photo-storage.s3.amazonaws.com/'+username+'/'+filename)}}"
              alt="{{filename}}">
     </div>
     <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey">scale up:</h2>
-        <img src="{{url_for('static', filename='photos/'+username+'/scaleup_'+filename)}}"
+        <img src="{{url_for('https://cloud-computing-photo-storage.s3.amazonaws.com/'+username+'/scaleup_'+filename)}}"
          alt="transformation">
     </div>
     <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey">scaled down:</h2>
-        <img src="{{url_for('static', filename='photos/'+username+'/scaledown_'+filename)}}"
+        <img src="{{url_for('https://cloud-computing-photo-storage.s3.amazonaws.com/'+username+'/scaledown_'+filename)}}"
          alt="transformation">
     </div>
     <div style="margin:auto;width:auto;text-align:center;">
         <h2 class="grey" >black and white:</h2>
-        <img src="{{url_for('static', filename='photos/'+username+'/grayscale_'+filename)}}"
+        <img src="{{url_for('https://cloud-computing-photo-storage.s3.amazonaws.com/'+username+'/grayscale_'+filename)}}"
          alt="transformation">
     </div>
 
