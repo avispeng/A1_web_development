@@ -9,7 +9,7 @@ $ python3 -m venv flask
 3.activate the venv
 $ source flask/bin/activate
 
-4.install flask, wand(an ImageMagick binding for python), and mysql-connector-python
+4.install flask, wand(an ImageMagick binding for python), and mysql-connector-python, boto3, gunicorn
 $ flask/bin/pip3 install flask
 $ flask/bin/pip3 install wand
 $ flask/bin/pip3 install mysql-connector-python-rf --egg

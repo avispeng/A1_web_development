@@ -212,8 +212,8 @@ def file_uploaded(username):
     # handling filename length
     if len(fn) > 30:
         try:
-            rez = fn.split(".")
-            fn = rez[0][0:15] + "." + rez[1]
+            rez = fn.rsplit('.',1)
+            fn = rez[0][0:30] + "." + rez[1]
             print("fn formatted is: " + fn)
         except:
             # invalid file input
