@@ -235,7 +235,7 @@ def file_uploaded(username):
         # save to local storage first
         f.save(os.path.join(fpath, fn))
         # save the original picture to s3
-        s3.upload_fileobj(f, bucket.name, username+'/'+fn)
+        bucket.upload_fileobj(f, username+'/'+fn)
 
         with Image(filename=os.path.join(fpath, fn)) as img:
             size = img.size
@@ -248,25 +248,25 @@ def file_uploaded(username):
                 converted1.sample(150, 150)
                 # converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
                 # save the thumbnail to s3
-                s3.upload_fileobj(converted1, bucket.name, username + '/thumbnail_' + fn)
+                bucket.upload_fileobj(converted1, username + '/thumbnail_' + fn)
             with img.convert('jpg') as converted2:
                 # scale up
                 converted2.resize(int(size[0]*1.2), int(size[1]*1.2))
                 # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                 # save the scaled-up to s3
-                s3.upload_fileobj(converted2, bucket.name, username + '/scaleup_' + fn)
+                bucket.upload_fileobj(converted2, username + '/scaleup_' + fn)
             with img.convert('jpg') as converted3:
                 # scale down
                 converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                 # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                 # save the scaled down to s3
-                s3.upload_fileobj(converted3, bucket.name, username + '/scaledown_' + fn)
+                bucket.upload_fileobj(converted3, username + '/scaledown_' + fn)
             with img.convert('jpg') as converted4:
                 # grayscale
                 converted4.type = 'grayscale'
                 # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                 # save the grayscale to s3
-                s3.upload_fileobj(converted4, bucket.name, username + '/grayscale_' + fn)
+                bucket.upload_fileobj(converted4, username + '/grayscale_' + fn)
         # delete the image from local storage
         os.remove(os.path.join(fpath, fn))
 
@@ -340,7 +340,7 @@ def test_file_upload():
                 # save to local storage first
                 f.save(os.path.join(fpath, fn))
                 # save the original picture to s3
-                s3.upload_fileobj(f, bucket.name, username + '/' + fn)
+                bucket.upload_fileobj(f, username + '/' + fn)
 
                 with Image(filename=os.path.join(fpath, fn)) as img:
                     size = img.size
@@ -353,25 +353,25 @@ def test_file_upload():
                         converted1.sample(150, 150)
                         # converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
                         # save the thumbnail to s3
-                        s3.upload_fileobj(converted1, bucket.name, username + '/thumbnail_' + fn)
+                        bucket.upload_fileobj(converted1, username + '/thumbnail_' + fn)
                     with img.convert('jpg') as converted2:
                         # scale up
                         converted2.resize(int(size[0] * 1.2), int(size[1] * 1.2))
                         # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                         # save the scaled-up to s3
-                        s3.upload_fileobj(converted2, bucket.name, username + '/scaleup_' + fn)
+                        bucket.upload_fileobj(converted2, username + '/scaleup_' + fn)
                     with img.convert('jpg') as converted3:
                         # scale down
                         converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                         # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                         # save the scaled down to s3
-                        s3.upload_fileobj(converted3, bucket.name, username + '/scaledown_' + fn)
+                        bucket.upload_fileobj(converted3, username + '/scaledown_' + fn)
                     with img.convert('jpg') as converted4:
                         # grayscale
                         converted4.type = 'grayscale'
                         # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                         # save the grayscale to s3
-                        s3.upload_fileobj(converted4, bucket.name, username + '/grayscale_' + fn)
+                        bucket.upload_fileobj(converted4, username + '/grayscale_' + fn)
                 # delete the image from local storage
                 os.remove(os.path.join(fpath, fn))
 
