@@ -229,8 +229,7 @@ def file_uploaded(username):
 
     # connect to s3
     s3 = boto3.resource('s3')
-    buckets = s3.buckets.all()
-    bucket = buckets[0]
+    bucket = s3.Bucket('cloud-computing-photo-storage')
 
     if '.' in fn and fn.rsplit('.',1)[1].lower() in allowed_ext:
         # save to local storage first
@@ -335,8 +334,7 @@ def test_file_upload():
 
             # connect to s3
             s3 = boto3.resource('s3')
-            buckets = s3.buckets.all()
-            bucket = buckets[0]
+            bucket = s3.Bucket('cloud-computing-photo-storage')
 
             if '.' in fn and fn.rsplit('.', 1)[1].lower() in allowed_ext:
                 # save to local storage first
