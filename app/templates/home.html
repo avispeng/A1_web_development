@@ -37,8 +37,8 @@ input[type=submit]:hover{
                         <a href="{{url_for('image_display', username=username, img_id=row[0])}}" target="_blank">
                             <!--<img src="{{url_for('static', filename='photos/'+username+'/thumbnail_'+row[2])}}"-->
                                  <!--alt="thumbnail" style="width:150px;height:150px;">-->
-                            <img src="'https://cloud-computing-photo-storage.s3.amazonaws.com/'+{{username}}+'/thumbnail_'+{{row[2]}}"
-                                 alt="'https://cloud-computing-photo-storage.s3.amazonaws.com/'+{{username}}+'/thumbnail_'+{{row[2]}}"
+                            <img src="https://cloud-computing-photo-storage.s3.amazonaws.com/{{username}}/thumbnail_{{row[2]}}"
+                                 alt="https://cloud-computing-photo-storage.s3.amazonaws.com/{{username}}/thumbnail_{{row[2]}}"
                                  style="width:150px;height:150px;">
                         </a>
                     </div>
