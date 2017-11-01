@@ -38,7 +38,8 @@ input[type=submit]:hover{
                             <!--<img src="{{url_for('static', filename='photos/'+username+'/thumbnail_'+row[2])}}"-->
                                  <!--alt="thumbnail" style="width:150px;height:150px;">-->
                             <img src="'https://cloud-computing-photo-storage.s3.amazonaws.com/'+{{username}}+'/thumbnail_'+{{row[2]}}"
-                                 alt="thumbnail" style="width:150px;height:150px;">
+                                 alt="'https://cloud-computing-photo-storage.s3.amazonaws.com/'+{{username}}+'/thumbnail_'+{{row[2]}}"
+                                 style="width:150px;height:150px;">
                         </a>
                     </div>
                     <div class="photo_name">
