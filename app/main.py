@@ -235,7 +235,8 @@ def file_uploaded(username):
         # save to local storage first
         f.save(os.path.join(fpath, fn))
         # save the original picture to s3
-        bucket.upload_fileobj(f, username+'/'+fn)
+        original = open(os.path.join(fpath, fn), 'rb')
+        bucket.upload_fileobj(original, username+'/'+fn)
 
         with Image(filename=os.path.join(fpath, fn)) as img:
             size = img.size
@@ -281,6 +282,9 @@ def file_uploaded(username):
                 os.remove(os.path.join(fpath, '/grayscale_' + fn))
         # delete the original image from local storage
         os.remove(os.path.join(fpath, fn))
+
+        object_acl = s3.ObjectAcl('cloud-computing-photo-storage', username+'/*')
+        response = object_acl.put(ACL='public-read')
 
         cnx = get_db()
         cursor = cnx.cursor(buffered=True)
