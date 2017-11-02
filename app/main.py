@@ -249,7 +249,7 @@ def file_uploaded(username):
                 # save to local, read, save to s3, delete it from local
                 converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
                 thumb = open(os.path.join(fpath, "thumbnail_"+fn), 'rb')
-                bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
+                bucket.upload_fileobj(thumb, 'publicall/'+username + '/thumbnail_' + fn)
                 os.remove(os.path.join(fpath, "thumbnail_"+fn))
             with img.convert('jpg') as converted2:
                 # scale up
