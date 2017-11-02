@@ -237,6 +237,7 @@ def file_uploaded(username):
         # save the original picture to s3
         original = open(os.path.join(fpath, fn), 'rb')
         bucket.upload_fileobj(original, username+'/'+fn)
+        original.close()
 
         with Image(filename=os.path.join(fpath, fn)) as img:
             size = img.size
@@ -251,6 +252,7 @@ def file_uploaded(username):
                 converted1.save(filename=os.path.join(fpath, "thumbnail_"+fn))
                 thumb = open(os.path.join(fpath, "thumbnail_"+fn), 'rb')
                 bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
+                thumb.close()
                 os.remove(os.path.join(fpath, "thumbnail_"+fn))
             with img.convert('jpg') as converted2:
                 # scale up
@@ -260,6 +262,7 @@ def file_uploaded(username):
                 converted2.save(filename=os.path.join(fpath, '/scaleup_' + fn))
                 scaleup = open(os.path.join(fpath, '/scaleup_' + fn), 'rb')
                 bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
+                scaleup.close()
                 os.remove(os.path.join(fpath, '/scaleup_' + fn))
 
             with img.convert('jpg') as converted3:
@@ -270,6 +273,7 @@ def file_uploaded(username):
                 converted3.save(filename=os.path.join(fpath, '/scaledown_' + fn))
                 scaledown = open(os.path.join(fpath, '/scaledown_' + fn), 'rb')
                 bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
+                scaledown.close()
                 os.remove(os.path.join(fpath, '/scaledown_' + fn))
             with img.convert('jpg') as converted4:
                 # grayscale
@@ -279,6 +283,7 @@ def file_uploaded(username):
                 converted4.save(filename=os.path.join(fpath, '/grayscale_' + fn))
                 grayscale = open(os.path.join(fpath, '/grayscale_' + fn), 'rb')
                 bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
+                grayscale.close()
                 os.remove(os.path.join(fpath, '/grayscale_' + fn))
         # delete the original image from local storage
         os.remove(os.path.join(fpath, fn))
