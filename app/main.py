@@ -9,7 +9,7 @@ from wand.image import Image
 import boto3
 
 # webapp.secret_key = os.urandom(24)
-webapp.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
 
 
 @webapp.route('/',methods=['GET'])
