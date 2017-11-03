@@ -250,8 +250,8 @@ def file_uploaded(username):
                     converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                 converted1.sample(150, 150)
                 # save to local, read, save to s3, delete it from local
-                converted1.save(filename=os.path.join(fpath, '/thumbnail_'+fn))
-                thumb = open(os.path.join(fpath, '/thumbnail_'+fn), 'rb')
+                converted1.save(filename=os.path.join(fpath, 'thumbnail_'+fn))
+                thumb = open(os.path.join(fpath, 'thumbnail_'+fn), 'rb')
                 bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
                 thumb.close()
 
@@ -260,8 +260,8 @@ def file_uploaded(username):
                 converted2.resize(int(size[0]*1.2), int(size[1]*1.2))
                 # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                 # save the scaled-up to s3
-                converted2.save(filename=os.path.join(fpath, '/scaleup_' + fn))
-                scaleup = open(os.path.join(fpath, '/scaleup_' + fn), 'rb')
+                converted2.save(filename=os.path.join(fpath, 'scaleup_' + fn))
+                scaleup = open(os.path.join(fpath, 'scaleup_' + fn), 'rb')
                 bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
                 scaleup.close()
 
@@ -270,8 +270,8 @@ def file_uploaded(username):
                 converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                 # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                 # save the scaled down to s3
-                converted3.save(filename=os.path.join(fpath, '/scaledown_' + fn))
-                scaledown = open(os.path.join(fpath, '/scaledown_' + fn), 'rb')
+                converted3.save(filename=os.path.join(fpath, 'scaledown_' + fn))
+                scaledown = open(os.path.join(fpath, 'scaledown_' + fn), 'rb')
                 bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
                 scaledown.close()
 
@@ -280,16 +280,16 @@ def file_uploaded(username):
                 converted4.type = 'grayscale'
                 # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                 # save the grayscale to s3
-                converted4.save(filename=os.path.join(fpath, '/grayscale_' + fn))
-                grayscale = open(os.path.join(fpath, '/grayscale_' + fn), 'rb')
+                converted4.save(filename=os.path.join(fpath, 'grayscale_' + fn))
+                grayscale = open(os.path.join(fpath, 'grayscale_' + fn), 'rb')
                 bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
                 grayscale.close()
 
         # delete the original image from local storage
-        os.remove(os.path.join(fpath, '/thumbnail_' + fn))
-        os.remove(os.path.join(fpath, '/scaleup_' + fn))
-        os.remove(os.path.join(fpath, '/scaledown_' + fn))
-        os.remove(os.path.join(fpath, '/grayscale_' + fn))
+        os.remove(os.path.join(fpath, 'thumbnail_' + fn))
+        os.remove(os.path.join(fpath, 'scaleup_' + fn))
+        os.remove(os.path.join(fpath, 'scaledown_' + fn))
+        os.remove(os.path.join(fpath, 'grayscale_' + fn))
         os.remove(os.path.join(fpath, fn))
 
         object_acl = s3.ObjectAcl('cloud-computing-photo-storage', username+'/*')
