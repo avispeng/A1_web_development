@@ -8,7 +8,8 @@ import os
 from wand.image import Image
 import boto3
 
-webapp.secret_key = os.urandom(24)
+# webapp.secret_key = os.urandom(24)
+webapp.secret_key = 'DJidfowieKD763EFJksjoefi'
 
 @webapp.route('/',methods=['GET'])
 @webapp.route('/index',methods=['GET'])
