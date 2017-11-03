@@ -351,6 +351,7 @@ def test_file_upload():
         pwd += salt
         if hashed_pwd == hashlib.sha256(pwd.encode()).hexdigest():
             # add to the session
+            session['authenticated'] = True
             session['username'] = username
             fpath = './app/static'
             allowed_ext = set(['jpg', 'jpeg', 'png', 'gif'])
