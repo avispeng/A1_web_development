@@ -66,6 +66,7 @@ def user_login():
     pwd += salt
     if hashed_pwd == hashlib.sha256(pwd.encode()).hexdigest():
         # add to the session
+        # session['authenticated'] = True
         session['username'] = username
         return redirect(url_for('home_page', username=username))
     else:
@@ -130,6 +131,7 @@ def home_page(username):
     if 'username' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
+        session.clear()
         return redirect(url_for('main'))
 
     cnx = get_db()
@@ -146,7 +148,8 @@ def home_page(username):
 
 @webapp.route('/home/<username>/logout', methods=['GET'])
 def logout(username):
-    session.pop('username', None)
+    # session.pop('username', None)
+    session.clear()
     return redirect(url_for('main'))
 
 
@@ -162,6 +165,7 @@ def image_display(username, img_id):
     if 'username' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
+        session.clear()
         return redirect(url_for('main'))
     cnx = get_db()
     cursor = cnx.cursor(buffered=True)
@@ -188,6 +192,7 @@ def file_upload(username):
     if 'username' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
+        session.clear()
         return redirect(url_for('main'))
     return render_template("file_upload.html", title="Upload your photo", username=username)
 
@@ -202,6 +207,7 @@ def file_uploaded(username):
     if 'username' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
+        session.clear()
         return redirect(url_for('main'))
 
     # where to store the image
