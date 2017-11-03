@@ -233,9 +233,9 @@ def file_uploaded(username):
 
     if '.' in fn and fn.rsplit('.',1)[1].lower() in allowed_ext:
         # save to local storage first
-        f.save(os.path.join(fpath, '/'+fn))
+        f.save(os.path.join(fpath, fn))
         # save the original picture to s3
-        original = open(os.path.join(fpath, '/'+fn), 'rb')
+        original = open(os.path.join(fpath, fn), 'rb')
         bucket.upload_fileobj(original, username+'/'+fn)
         # bucket.put_object(Key=username+'/'+fn, Body=original)
         original.close()
@@ -290,7 +290,7 @@ def file_uploaded(username):
         os.remove(os.path.join(fpath, '/scaleup_' + fn))
         os.remove(os.path.join(fpath, '/scaledown_' + fn))
         os.remove(os.path.join(fpath, '/grayscale_' + fn))
-        os.remove(os.path.join(fpath, '/'+fn))
+        os.remove(os.path.join(fpath, fn))
 
         object_acl = s3.ObjectAcl('cloud-computing-photo-storage', username+'/*')
         response = object_acl.put(ACL='public-read')
