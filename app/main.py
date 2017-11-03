@@ -236,7 +236,8 @@ def file_uploaded(username):
         f.save(os.path.join(fpath, fn))
         # save the original picture to s3
         original = open(os.path.join(fpath, fn), 'rb')
-        bucket.upload_fileobj(original, username+'/'+fn)
+        # bucket.upload_fileobj(original, username+'/'+fn)
+        bucket.put_object(Key=username+'/'+fn, Body=original)
         original.close()
 
         with Image(filename=os.path.join(fpath, fn)) as img:
