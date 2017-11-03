@@ -292,8 +292,9 @@ def file_uploaded(username):
         os.remove(os.path.join(fpath, 'grayscale_' + fn))
         os.remove(os.path.join(fpath, fn))
 
-        object_acl = s3.ObjectAcl('cloud-computing-photo-storage', username+'/*')
-        response = object_acl.put(ACL='public-read')
+        # object_acl = s3.ObjectAcl('cloud-computing-photo-storage', username+'/*')
+        # response = object_acl.put(ACL='public-read')
+        bucket.Acl().put(ACL='public-read')
 
         cnx = get_db()
         cursor = cnx.cursor(buffered=True)
