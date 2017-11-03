@@ -9,7 +9,7 @@ from wand.image import Image
 import boto3
 
 # webapp.secret_key = os.urandom(24)
-
+webapp.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 
 @webapp.route('/',methods=['GET'])
@@ -67,7 +67,7 @@ def user_login():
     pwd += salt
     if hashed_pwd == hashlib.sha256(pwd.encode()).hexdigest():
         # add to the session
-        # session['authenticated'] = True
+        session['authenticated'] = True
         session['username'] = username
         return redirect(url_for('home_page', username=username))
     else:
@@ -118,6 +118,7 @@ def user_signup():
     cursor.execute(query, (username, hashed_pwd, salt))
     cnx.commit()
     # add to the session
+    session['authenticated'] = True
     session['username'] = username
     return redirect(url_for('home_page', username=username))
 
@@ -129,11 +130,10 @@ def home_page(username):
     :param username: the username of the authenticated user.
     """
     # make sure the user is the one logging in the session
-    if 'username' not in session:
+    if 'authenticated' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
-        session.clear()
-        return redirect(url_for('main'))
+        return redirect(url_for('home_page', username=session['username']))
 
     cnx = get_db()
     cursor = cnx.cursor(buffered=True)
@@ -163,11 +163,11 @@ def image_display(username, img_id):
     :param img_id: the image id of the image corresponding to the thumbnail the user clicked on.
     """
     # make sure the user is the one logging in the session
-    if 'username' not in session:
+    if 'authenticated' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
-        session.clear()
-        return redirect(url_for('main'))
+        return redirect(url_for('home_page', username=session['username']))
+
     cnx = get_db()
     cursor = cnx.cursor(buffered=True)
     query = "SELECT img_name, location, description, owned_by, filename FROM images WHERE img_id = %s"
@@ -190,11 +190,10 @@ def image_display(username, img_id):
 @webapp.route('/home/<username>/upload', methods=['GET'])
 def file_upload(username):
     # make sure the user is the one logging in the session
-    if 'username' not in session:
+    if 'authenticated' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
-        session.clear()
-        return redirect(url_for('main'))
+        return redirect(url_for('home_page', username=session['username']))
     return render_template("file_upload.html", title="Upload your photo", username=username)
 
 
@@ -205,11 +204,10 @@ def file_uploaded(username):
     :param username: the username of the authenticated user.
     """
     # make sure the user is the one logging in the session
-    if 'username' not in session:
+    if 'authenticated' not in session:
         return redirect(url_for('main'))
     if session.get('username', '') != username:
-        session.clear()
-        return redirect(url_for('main'))
+        return redirect(url_for('home_page', username=session['username']))
 
     # where to store the image
     # fpath = './app/static/photos/{}'.format(username)
@@ -358,6 +356,17 @@ def test_file_upload():
             allowed_ext = set(['jpg', 'jpeg', 'png', 'gif'])
             f = request.files['myFile']
             fn = f.filename
+
+            # handling filename length
+            if len(fn) > 30:
+                try:
+                    rez = fn.rsplit('.', 1)
+                    fn = rez[0][0:26] + "." + rez[1]
+                    # print("fn formatted is: " + fn)
+                except:
+                    # invalid file input
+                    return redirect(url_for('home_page', username=session['username']))
+
             img_name = request.form.get('img_name', "")
             if img_name == "":
                 img_name = fn
@@ -374,7 +383,10 @@ def test_file_upload():
                 # save to local storage first
                 f.save(os.path.join(fpath, fn))
                 # save the original picture to s3
-                bucket.upload_fileobj(f, username + '/' + fn)
+                original = open(os.path.join(fpath, fn), 'rb')
+                bucket.upload_fileobj(original, username + '/' + fn)
+                # bucket.put_object(Key=username+'/'+fn, Body=original)
+                original.close()
 
                 with Image(filename=os.path.join(fpath, fn)) as img:
                     size = img.size
@@ -386,40 +398,49 @@ def test_file_upload():
                             converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                         converted1.sample(150, 150)
                         # save to local, read, save to s3, delete it from local
-                        converted1.save(filename=os.path.join(fpath, "thumbnail_" + fn))
-                        thumb = open(os.path.join(fpath, "thumbnail_" + fn), 'rb')
+                        converted1.save(filename=os.path.join(fpath, 'thumbnail_' + fn))
+                        thumb = open(os.path.join(fpath, 'thumbnail_' + fn), 'rb')
                         bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
-                        os.remove(os.path.join(fpath, "thumbnail_" + fn))
+                        thumb.close()
+
                     with img.convert('jpg') as converted2:
                         # scale up
                         converted2.resize(int(size[0] * 1.2), int(size[1] * 1.2))
                         # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                         # save the scaled-up to s3
-                        converted2.save(filename=os.path.join(fpath, '/scaleup_' + fn))
-                        scaleup = open(os.path.join(fpath, '/scaleup_' + fn), 'rb')
+                        converted2.save(filename=os.path.join(fpath, 'scaleup_' + fn))
+                        scaleup = open(os.path.join(fpath, 'scaleup_' + fn), 'rb')
                         bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
-                        os.remove(os.path.join(fpath, '/scaleup_' + fn))
+                        scaleup.close()
 
                     with img.convert('jpg') as converted3:
                         # scale down
                         converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                         # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                         # save the scaled down to s3
-                        converted3.save(filename=os.path.join(fpath, '/scaledown_' + fn))
-                        scaledown = open(os.path.join(fpath, '/scaledown_' + fn), 'rb')
+                        converted3.save(filename=os.path.join(fpath, 'scaledown_' + fn))
+                        scaledown = open(os.path.join(fpath, 'scaledown_' + fn), 'rb')
                         bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
-                        os.remove(os.path.join(fpath, '/scaledown_' + fn))
+                        scaledown.close()
+
                     with img.convert('jpg') as converted4:
                         # grayscale
                         converted4.type = 'grayscale'
                         # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                         # save the grayscale to s3
-                        converted4.save(filename=os.path.join(fpath, '/grayscale_' + fn))
-                        grayscale = open(os.path.join(fpath, '/grayscale_' + fn), 'rb')
+                        converted4.save(filename=os.path.join(fpath, 'grayscale_' + fn))
+                        grayscale = open(os.path.join(fpath, 'grayscale_' + fn), 'rb')
                         bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
-                        os.remove(os.path.join(fpath, '/grayscale_' + fn))
-                # delete the image from local storage
+                        grayscale.close()
+
+                # delete the original image from local storage
+                os.remove(os.path.join(fpath, 'thumbnail_' + fn))
+                os.remove(os.path.join(fpath, 'scaleup_' + fn))
+                os.remove(os.path.join(fpath, 'scaledown_' + fn))
+                os.remove(os.path.join(fpath, 'grayscale_' + fn))
                 os.remove(os.path.join(fpath, fn))
+
+                bucket.Acl().put(ACL='public-read')
 
                 cnx = get_db()
                 cursor = cnx.cursor(buffered=True)
