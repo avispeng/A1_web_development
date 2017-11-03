@@ -128,8 +128,8 @@ def home_page(username):
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
-    if session['username']!=username:
-        return redirect(url_for('home_page',username=session['username']))
+    if session.get('username', '') != username:
+        return redirect(url_for('main'))
 
     cnx = get_db()
     cursor = cnx.cursor(buffered=True)
@@ -160,8 +160,8 @@ def image_display(username, img_id):
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
-    if session['username']!=username:
-        return redirect(url_for('home_page',username=session['username']))
+    if session.get('username', '') != username:
+        return redirect(url_for('main'))
     cnx = get_db()
     cursor = cnx.cursor(buffered=True)
     query = "SELECT img_name, location, description, owned_by, filename FROM images WHERE img_id = %s"
@@ -186,8 +186,8 @@ def file_upload(username):
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
-    if session['username'] != username:
-        return redirect(url_for('home_page', username=session['username']))
+    if session.get('username', '') != username:
+        return redirect(url_for('main'))
     return render_template("file_upload.html", title="Upload your photo", username=username)
 
 
@@ -200,8 +200,8 @@ def file_uploaded(username):
     # make sure the user is the one logging in the session
     if 'username' not in session:
         return redirect(url_for('main'))
-    if session['username'] != username:
-        return redirect(url_for('home_page', username=session['username']))
+    if session.get('username', '') != username:
+        return redirect(url_for('main'))
 
     # where to store the image
     # fpath = './app/static/photos/{}'.format(username)
@@ -213,7 +213,7 @@ def file_uploaded(username):
     if len(fn) > 30:
         try:
             rez = fn.rsplit('.',1)
-            fn = rez[0][0:30] + "." + rez[1]
+            fn = rez[0][0:26] + "." + rez[1]
             print("fn formatted is: " + fn)
         except:
             # invalid file input
