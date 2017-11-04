@@ -4,6 +4,7 @@ import random
 import hashlib
 import mysql.connector
 from app.config import db_config
+from app.config import bucket_name
 import os
 from wand.image import Image
 import boto3
@@ -235,7 +236,8 @@ def file_uploaded(username):
 
     # connect to s3
     s3 = boto3.resource('s3')
-    bucket = s3.Bucket('cloud-computing-photo-storage')
+    # get my own bucket name
+    bucket = s3.Bucket(bucket_name)
 
     if '.' in fn and fn.rsplit('.',1)[1].lower() in allowed_ext:
         # save to local storage first
