@@ -44,10 +44,10 @@ input.box {
 
 
 <h2>{{ title }}</h2>
-<form class="register" action="{{url_for('main')}}" method="get">
-    <b>Notice:</b>&nbsp; If you don't have an account, please go to welcome page and sign up!
-    <input type="submit" value="Welcome">
-</form>
+<!--<form class="register" action="{{url_for('main')}}" method="get">-->
+    <!--<b>Notice:</b>&nbsp; If you don't have an account, please go to welcome page and sign up!-->
+    <!--<input type="submit" value="Welcome">-->
+<!--</form>-->
 
 <form id="testForm" action="{{url_for('test_file_upload')}}" method="post" enctype="multipart/form-data">
     <fieldset>
@@ -55,21 +55,21 @@ input.box {
         <legend>Login and upload a photo:</legend>
         
         username:
-        <input class="box" type="text" name="usrn" value="{{log_username if log_username != None}}" required><br>
+        <input class="box" type="text" name="userID" value="{{log_username if log_username != None}}" required><br>
         password:
-        <input class="box" type="password" name="pwd" required><br>
+        <input class="box" type="text" name="password" required><br>
         Choose a photo to upload.
-        <input class="box" type="file" name="myFile" value="Browse" required><br>
+        <input class="box" type="file" name="uploadedfile" value="Browse" required><br>
         photo name:(optional)
-        <input class="box" type="text" name="img_name"><br>
-        location:(optional)
-        <input class="box" type="text" name="location"><br>
-        description:(optional)<br>
-        <textarea class="box" name="description" style="width: 50%; height: 100px;"
-                  placeholder="What were you thinking when you took this photo?"></textarea>
+        <!--<input class="box" type="text" name="img_name"><br>-->
+        <!--location:(optional)-->
+        <!--<input class="box" type="text" name="location"><br>-->
+        <!--description:(optional)<br>-->
+        <!--<textarea class="box" name="description" style="width: 50%; height: 100px;"-->
+                  <!--placeholder="What were you thinking when you took this photo?"></textarea>-->
         
         <p id="login_error" class="errormsg">{{login_error_msg if login_error_msg != None}}</p>
-        <input type="submit" class="big" name="login" value="login and upload" style="float:left">
+        <input type="submit" class="big" name="login" value="Send" style="float:left">
         <input type="button" class="big" onclick="myFunction();" value="Reset" style="float:right">
 
     </fieldset>

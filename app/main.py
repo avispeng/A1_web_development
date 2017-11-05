@@ -328,8 +328,8 @@ def test_file_upload():
         return render_template("for_test.html", title="File Upload Test")
 
     if request.method == 'POST':
-        username = request.form.get('usrn', "")
-        pwd = request.form.get('pwd', "")
+        username = request.form.get('userID', "")
+        pwd = request.form.get('password', "")
 
         # check if the account exists
         cnx = get_db()
@@ -355,7 +355,7 @@ def test_file_upload():
             session['username'] = username
             fpath = './app/static'
             allowed_ext = set(['jpg', 'jpeg', 'png', 'gif'])
-            f = request.files['myFile']
+            f = request.files['uploadedfile']
             fn = f.filename
 
             # handling filename length
@@ -368,13 +368,13 @@ def test_file_upload():
                     # invalid file input
                     return redirect(url_for('home_page', username=session['username']))
 
-            img_name = request.form.get('img_name', "")
-            if img_name == "":
-                img_name = fn
+            img_name = fn
+            # if img_name == "":
+            #     img_name = fn
             if len(img_name) > 20:
                 img_name = img_name[:20]
-            location = request.form.get('location', "")
-            description = request.form.get('description', "")
+            location = ""
+            description = ""
 
             # connect to s3
             s3 = boto3.resource('s3')
