@@ -163,6 +163,7 @@ def image_display(username, img_id):
     :param username: the username of the authenticated user.
     :param img_id: the image id of the image corresponding to the thumbnail the user clicked on.
     """
+
     # make sure the user is the one logging in the session
     if 'authenticated' not in session:
         return redirect(url_for('main'))
@@ -184,8 +185,22 @@ def image_display(username, img_id):
     cursor.execute(query,(owner,))
     if cursor.fetchone()[0] != username:
         return redirect(url_for('home_page', username=session['username']))
+
+    # get s3 url
+    img_src = get_s3object_url(filename)
     return render_template("image_display.html", title="Photo display",img_id=img_id,
-                           img_name=name, location=location, description = desc, filename=filename, username=username)
+                           img_name=name, location=location, description = desc, filename=filename, username=username,
+                           img_src=img_src
+                           )
+
+
+# get object given filename
+def get_s3object_url(filename):
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(bucket_name)
+
+
+    pass
 
 
 @webapp.route('/home/<username>/upload', methods=['GET'])
