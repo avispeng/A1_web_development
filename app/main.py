@@ -238,15 +238,30 @@ def file_uploaded(username):
     bucket = s3.Bucket('cloud-computing-photo-storage')
 
     if '.' in fn and fn.rsplit('.',1)[1].lower() in allowed_ext:
+        # save to database
+        cnx = get_db()
+        cursor = cnx.cursor(buffered=True)
+        query = '''SELECT user_id FROM users WHERE username = %s'''
+        cursor.execute(query, (username,))
+        user_id = cursor.fetchone()[0]
+        query = '''INSERT INTO images (img_id, img_name, location, description, owned_by, filename)
+                    VALUES (NULL, %s, %s, %s, %s, %s)'''
+        cursor.execute(query, (img_name, location, description, user_id, fn))
+        cnx.commit()
+        # get the primary key of this image to give image a unique name in s3
+        query = '''SELECT LAST_INSERT_ID()'''
+        cursor.execute(query)
+        img_id = cursor.fetchone()[0]
+
         # save to local storage first
-        f.save(os.path.join(fpath, fn))
+        f.save(os.path.join(fpath, img_id+'_img_id_'+fn))
         # save the original picture to s3
-        original = open(os.path.join(fpath, fn), 'rb')
-        bucket.upload_fileobj(original, username+'/'+fn)
+        original = open(os.path.join(fpath, img_id+'_img_id_'+fn), 'rb')
+        bucket.upload_fileobj(original, username+'/'+img_id+'_img_id_'+fn)
         # bucket.put_object(Key=username+'/'+fn, Body=original)
         original.close()
 
-        with Image(filename=os.path.join(fpath, fn)) as img:
+        with Image(filename=os.path.join(fpath, img_id+'_img_id_'+fn)) as img:
             size = img.size
             with img.convert('jpg') as converted1:
                 # create thumbnail
@@ -256,9 +271,9 @@ def file_uploaded(username):
                     converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                 converted1.sample(150, 150)
                 # save to local, read, save to s3, delete it from local
-                converted1.save(filename=os.path.join(fpath, 'thumbnail_'+fn))
-                thumb = open(os.path.join(fpath, 'thumbnail_'+fn), 'rb')
-                bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
+                converted1.save(filename=os.path.join(fpath, 'thumbnail_'+img_id+'_img_id_'+fn))
+                thumb = open(os.path.join(fpath, 'thumbnail_'+img_id+'_img_id_'+fn), 'rb')
+                bucket.upload_fileobj(thumb, username + '/thumbnail_' + img_id+'_img_id_'+fn)
                 thumb.close()
 
             with img.convert('jpg') as converted2:
@@ -266,9 +281,9 @@ def file_uploaded(username):
                 converted2.resize(int(size[0]*1.2), int(size[1]*1.2))
                 # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                 # save the scaled-up to s3
-                converted2.save(filename=os.path.join(fpath, 'scaleup_' + fn))
-                scaleup = open(os.path.join(fpath, 'scaleup_' + fn), 'rb')
-                bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
+                converted2.save(filename=os.path.join(fpath, 'scaleup_' + img_id+'_img_id_'+fn))
+                scaleup = open(os.path.join(fpath, 'scaleup_' + img_id+'_img_id_'+fn), 'rb')
+                bucket.upload_fileobj(scaleup, username + '/scaleup_' + img_id+'_img_id_'+fn)
                 scaleup.close()
 
             with img.convert('jpg') as converted3:
@@ -276,9 +291,9 @@ def file_uploaded(username):
                 converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                 # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                 # save the scaled down to s3
-                converted3.save(filename=os.path.join(fpath, 'scaledown_' + fn))
-                scaledown = open(os.path.join(fpath, 'scaledown_' + fn), 'rb')
-                bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
+                converted3.save(filename=os.path.join(fpath, 'scaledown_' + img_id+'_img_id_'+fn))
+                scaledown = open(os.path.join(fpath, 'scaledown_' + img_id+'_img_id_'+fn), 'rb')
+                bucket.upload_fileobj(scaledown, username + '/scaledown_' + img_id+'_img_id_'+fn)
                 scaledown.close()
 
             with img.convert('jpg') as converted4:
@@ -286,31 +301,22 @@ def file_uploaded(username):
                 converted4.type = 'grayscale'
                 # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                 # save the grayscale to s3
-                converted4.save(filename=os.path.join(fpath, 'grayscale_' + fn))
-                grayscale = open(os.path.join(fpath, 'grayscale_' + fn), 'rb')
-                bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
+                converted4.save(filename=os.path.join(fpath, 'grayscale_' + img_id+'_img_id_'+fn))
+                grayscale = open(os.path.join(fpath, 'grayscale_' + img_id+'_img_id_'+fn), 'rb')
+                bucket.upload_fileobj(grayscale, username + '/grayscale_' + img_id+'_img_id_'+fn)
                 grayscale.close()
 
         # delete the original image from local storage
-        os.remove(os.path.join(fpath, 'thumbnail_' + fn))
-        os.remove(os.path.join(fpath, 'scaleup_' + fn))
-        os.remove(os.path.join(fpath, 'scaledown_' + fn))
-        os.remove(os.path.join(fpath, 'grayscale_' + fn))
-        os.remove(os.path.join(fpath, fn))
+        os.remove(os.path.join(fpath, 'thumbnail_' + img_id+'_img_id_'+fn))
+        os.remove(os.path.join(fpath, 'scaleup_' + img_id+'_img_id_'+fn))
+        os.remove(os.path.join(fpath, 'scaledown_' + img_id+'_img_id_'+fn))
+        os.remove(os.path.join(fpath, 'grayscale_' + img_id+'_img_id_'+fn))
+        os.remove(os.path.join(fpath, img_id+'_img_id_'+fn))
 
         # object_acl = s3.ObjectAcl('cloud-computing-photo-storage', username+'/*')
         # response = object_acl.put(ACL='public-read')
         bucket.Acl().put(ACL='public-read')
 
-        cnx = get_db()
-        cursor = cnx.cursor(buffered=True)
-        query = '''SELECT user_id FROM users WHERE username = %s'''
-        cursor.execute(query,(username,))
-        user_id = cursor.fetchone()[0]
-        query = '''INSERT INTO images (img_id, img_name, location, description, owned_by, filename)
-        VALUES (NULL, %s, %s, %s, %s, %s)'''
-        cursor.execute(query,(img_name, location, description, user_id, fn))
-        cnx.commit()
         return redirect(url_for('home_page',username=username))
     else:
         error = True
@@ -381,15 +387,29 @@ def test_file_upload():
             bucket = s3.Bucket('cloud-computing-photo-storage')
 
             if '.' in fn and fn.rsplit('.', 1)[1].lower() in allowed_ext:
+                cnx = get_db()
+                cursor = cnx.cursor(buffered=True)
+                query = '''SELECT user_id FROM users WHERE username = %s'''
+                cursor.execute(query, (username,))
+                user_id = cursor.fetchone()[0]
+                query = '''INSERT INTO images (img_id, img_name, location, description, owned_by, filename)
+                                VALUES (NULL, %s, %s, %s, %s, %s)'''
+                cursor.execute(query, (img_name, location, description, user_id, fn))
+                cnx.commit()
+                # get the primary key of this image to give image a unique name in s3
+                query = '''SELECT LAST_INSERT_ID()'''
+                cursor.execute(query)
+                img_id = cursor.fetchone()[0]
+
                 # save to local storage first
-                f.save(os.path.join(fpath, fn))
+                f.save(os.path.join(fpath, img_id + '_img_id_' + fn))
                 # save the original picture to s3
-                original = open(os.path.join(fpath, fn), 'rb')
-                bucket.upload_fileobj(original, username + '/' + fn)
+                original = open(os.path.join(fpath, img_id + '_img_id_' + fn), 'rb')
+                bucket.upload_fileobj(original, username + '/' + img_id + '_img_id_' + fn)
                 # bucket.put_object(Key=username+'/'+fn, Body=original)
                 original.close()
 
-                with Image(filename=os.path.join(fpath, fn)) as img:
+                with Image(filename=os.path.join(fpath, img_id + '_img_id_' + fn)) as img:
                     size = img.size
                     with img.convert('jpg') as converted1:
                         # create thumbnail
@@ -399,9 +419,9 @@ def test_file_upload():
                             converted1.crop((size[0] - size[1]) // 2, 0, width=size[1], height=size[1])
                         converted1.sample(150, 150)
                         # save to local, read, save to s3, delete it from local
-                        converted1.save(filename=os.path.join(fpath, 'thumbnail_' + fn))
-                        thumb = open(os.path.join(fpath, 'thumbnail_' + fn), 'rb')
-                        bucket.upload_fileobj(thumb, username + '/thumbnail_' + fn)
+                        converted1.save(filename=os.path.join(fpath, 'thumbnail_' + img_id + '_img_id_' + fn))
+                        thumb = open(os.path.join(fpath, 'thumbnail_' + img_id + '_img_id_' + fn), 'rb')
+                        bucket.upload_fileobj(thumb, username + '/thumbnail_' + img_id + '_img_id_' + fn)
                         thumb.close()
 
                     with img.convert('jpg') as converted2:
@@ -409,9 +429,9 @@ def test_file_upload():
                         converted2.resize(int(size[0] * 1.2), int(size[1] * 1.2))
                         # converted2.save(filename=os.path.join(fpath, "scaleup_"+fn))
                         # save the scaled-up to s3
-                        converted2.save(filename=os.path.join(fpath, 'scaleup_' + fn))
-                        scaleup = open(os.path.join(fpath, 'scaleup_' + fn), 'rb')
-                        bucket.upload_fileobj(scaleup, username + '/scaleup_' + fn)
+                        converted2.save(filename=os.path.join(fpath, 'scaleup_' + img_id + '_img_id_' + fn))
+                        scaleup = open(os.path.join(fpath, 'scaleup_' + img_id + '_img_id_' + fn), 'rb')
+                        bucket.upload_fileobj(scaleup, username + '/scaleup_' + img_id + '_img_id_' + fn)
                         scaleup.close()
 
                     with img.convert('jpg') as converted3:
@@ -419,9 +439,9 @@ def test_file_upload():
                         converted3.resize(int(size[0] * 0.8), int(size[1] * 0.8))
                         # converted3.save(filename=os.path.join(fpath, "scaledown_" + fn))
                         # save the scaled down to s3
-                        converted3.save(filename=os.path.join(fpath, 'scaledown_' + fn))
-                        scaledown = open(os.path.join(fpath, 'scaledown_' + fn), 'rb')
-                        bucket.upload_fileobj(scaledown, username + '/scaledown_' + fn)
+                        converted3.save(filename=os.path.join(fpath, 'scaledown_' + img_id + '_img_id_' + fn))
+                        scaledown = open(os.path.join(fpath, 'scaledown_' + img_id + '_img_id_' + fn), 'rb')
+                        bucket.upload_fileobj(scaledown, username + '/scaledown_' + img_id + '_img_id_' + fn)
                         scaledown.close()
 
                     with img.convert('jpg') as converted4:
@@ -429,29 +449,20 @@ def test_file_upload():
                         converted4.type = 'grayscale'
                         # converted4.save(filename=os.path.join(fpath, "grayscale_" + fn))
                         # save the grayscale to s3
-                        converted4.save(filename=os.path.join(fpath, 'grayscale_' + fn))
-                        grayscale = open(os.path.join(fpath, 'grayscale_' + fn), 'rb')
-                        bucket.upload_fileobj(grayscale, username + '/grayscale_' + fn)
+                        converted4.save(filename=os.path.join(fpath, 'grayscale_' + img_id + '_img_id_' + fn))
+                        grayscale = open(os.path.join(fpath, 'grayscale_' + img_id + '_img_id_' + fn), 'rb')
+                        bucket.upload_fileobj(grayscale, username + '/grayscale_' + img_id + '_img_id_' + fn)
                         grayscale.close()
 
                 # delete the original image from local storage
-                os.remove(os.path.join(fpath, 'thumbnail_' + fn))
-                os.remove(os.path.join(fpath, 'scaleup_' + fn))
-                os.remove(os.path.join(fpath, 'scaledown_' + fn))
-                os.remove(os.path.join(fpath, 'grayscale_' + fn))
-                os.remove(os.path.join(fpath, fn))
+                os.remove(os.path.join(fpath, 'thumbnail_' + img_id + '_img_id_' + fn))
+                os.remove(os.path.join(fpath, 'scaleup_' + img_id + '_img_id_' + fn))
+                os.remove(os.path.join(fpath, 'scaledown_' + img_id + '_img_id_' + fn))
+                os.remove(os.path.join(fpath, 'grayscale_' + img_id + '_img_id_' + fn))
+                os.remove(os.path.join(fpath, img_id + '_img_id_' + fn))
 
                 bucket.Acl().put(ACL='public-read')
 
-                cnx = get_db()
-                cursor = cnx.cursor(buffered=True)
-                query = '''SELECT user_id FROM users WHERE username = %s'''
-                cursor.execute(query, (username,))
-                user_id = cursor.fetchone()[0]
-                query = '''INSERT INTO images (img_id, img_name, location, description, owned_by, filename)
-                VALUES (NULL, %s, %s, %s, %s, %s)'''
-                cursor.execute(query, (img_name, location, description, user_id, fn))
-                cnx.commit()
                 return redirect(url_for('home_page', username=username))
             else:
                 error = True
