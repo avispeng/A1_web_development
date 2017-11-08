@@ -8,6 +8,7 @@ from app.config import bucket_name
 import os
 from wand.image import Image
 import boto3
+from app import config
 
 # webapp.secret_key = os.urandom(24)
 
@@ -144,8 +145,28 @@ def home_page(username):
     query = '''SELECT images.img_id, images.img_name, images.filename FROM images, 
     users WHERE users.username = %s AND images.owned_by = users.user_id'''
     cursor.execute(query, (username,))  # current login user
+    img_url_set = get_s3_thumbnail(username)
 
-    return render_template("home.html", title="Your photos", cursor=cursor, username=username)
+    return render_template("home.html", title="Your photos", cursor=cursor, username=username, img_url_set=img_url_set)
+
+
+def get_s3_thumbnail(username, filename):
+    s3 = boto3.resource('s3')
+    # bucket = s3.Bucket(config.bucket_name)
+    client = boto3.client('s3')
+
+    file_key = username + "/thumbnail_" + filename
+    params = {
+        'Bucket': config.bucket_name,
+        'Key': file_key
+    }
+    url = client.generate_presigned_url('get_object',
+                                        params,
+                                        ExpiresIn=3600
+                                        )
+    # for debugging
+    print(url)
+    return url
 
 
 @webapp.route('/home/<username>/logout', methods=['GET'])
@@ -187,20 +208,39 @@ def image_display(username, img_id):
         return redirect(url_for('home_page', username=session['username']))
 
     # get s3 url
-    img_src = get_s3object_url(filename)
+    img_src_set = get_s3_object_url_set(username, filename)
     return render_template("image_display.html", title="Photo display",img_id=img_id,
                            img_name=name, location=location, description = desc, filename=filename, username=username,
-                           img_src=img_src
+                           img_src=img_src_set[1]
                            )
 
 
-# get object given filename
-def get_s3object_url(filename):
+# return array of image urls [] for username
+def get_s3_object_url_set(username, filename):
     s3 = boto3.resource('s3')
-    bucket = s3.Bucket(bucket_name)
+    # bucket = s3.Bucket(config.bucket_name)
+    client = boto3.client('s3')
 
+    file_url_set = []
+    file_extension = ["/", "/scaleup_", "/scaledown_", "grayscale_"]
+    Params={
+        'Bucket': config.bucket_name,
+        'Key': None
+    }
 
-    pass
+    for ext in file_extension:
+        file_key = username + ext + filename
+        Params['Key'] = file_key
+        url = client.generate_presigned_url('get_object',
+                                            Params,
+                                            ExpiresIn=3600
+                                            )
+        # for debugging
+        print(url)
+        file_url_set.append(url)
+
+    return file_url_set
+
 
 
 @webapp.route('/home/<username>/upload', methods=['GET'])
