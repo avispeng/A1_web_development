@@ -252,6 +252,7 @@ def file_uploaded(username):
         query = '''SELECT LAST_INSERT_ID()'''
         cursor.execute(query)
         img_id = cursor.fetchone()[0]
+        img_id = str(img_id)
 
         # save to local storage first
         f.save(os.path.join(fpath, img_id+'_img_id_'+fn))
@@ -400,6 +401,7 @@ def test_file_upload():
                 query = '''SELECT LAST_INSERT_ID()'''
                 cursor.execute(query)
                 img_id = cursor.fetchone()[0]
+                img_id = str(img_id)
 
                 # save to local storage first
                 f.save(os.path.join(fpath, img_id + '_img_id_' + fn))
