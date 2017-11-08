@@ -145,12 +145,20 @@ def home_page(username):
     query = '''SELECT images.img_id, images.img_name, images.filename FROM images, 
     users WHERE users.username = %s AND images.owned_by = users.user_id'''
     cursor.execute(query, (username,))  # current login user
-    img_url_set = get_s3_thumbnail(username)
 
-    return render_template("home.html", title="Your photos", cursor=cursor, username=username, img_url_set=img_url_set)
+    return render_template("home.html", title="Your photos", cursor=cursor, username=username)
 
 
-def get_s3_thumbnail(username, filename):
+@webapp.route('/home/<username>/<int:img_id>/thumbnail', methods=['GET'])
+def get_s3_thumbnail(username, img_id):
+    cnx = get_db()
+    cursor = cnx.cursor(buffered=True)
+    query = "SELECT img_name, location, description, owned_by, filename FROM images WHERE img_id = %s"
+    cursor.execute(query,(img_id,))
+    row = cursor.fetchone()
+    name = row[0]
+    filename = row[4]
+
     s3 = boto3.resource('s3')
     # bucket = s3.Bucket(config.bucket_name)
     client = boto3.client('s3')
@@ -165,7 +173,7 @@ def get_s3_thumbnail(username, filename):
                                         ExpiresIn=3600
                                         )
     # for debugging
-    print(url)
+    print(url + "\nreturned\n")
     return url
 
 
@@ -211,7 +219,7 @@ def image_display(username, img_id):
     img_src_set = get_s3_object_url_set(username, filename)
     return render_template("image_display.html", title="Photo display",img_id=img_id,
                            img_name=name, location=location, description = desc, filename=filename, username=username,
-                           img_src=img_src_set[1]
+                           img_src_set=img_src_set
                            )
 
 
@@ -222,7 +230,7 @@ def get_s3_object_url_set(username, filename):
     client = boto3.client('s3')
 
     file_url_set = []
-    file_extension = ["/", "/scaleup_", "/scaledown_", "grayscale_"]
+    file_extension = ["/", "/scaleup_", "/scaledown_", "/grayscale_"]
     Params={
         'Bucket': config.bucket_name,
         'Key': None
