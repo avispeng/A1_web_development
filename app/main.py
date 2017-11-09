@@ -146,35 +146,38 @@ def home_page(username):
     users WHERE users.username = %s AND images.owned_by = users.user_id'''
     cursor.execute(query, (username,))  # current login user
 
-    return render_template("home.html", title="Your photos", cursor=cursor, username=username)
+    thumbnail_row_set = get_thumb_crow_set(username, cursor)
 
 
-@webapp.route('/home/<username>/<int:img_id>/thumbnail', methods=['GET'])
-def get_s3_thumbnail(username, img_id):
-    cnx = get_db()
-    cursor = cnx.cursor(buffered=True)
-    query = "SELECT img_name, location, description, owned_by, filename FROM images WHERE img_id = %s"
-    cursor.execute(query,(img_id,))
-    row = cursor.fetchone()
-    name = row[0]
-    filename = row[4]
+    return render_template("home.html", title="Your photos", cursor=cursor, username=username, set=thumbnail_row_set)
 
-    s3 = boto3.resource('s3')
-    # bucket = s3.Bucket(config.bucket_name)
+
+# put everything jinja needs in this array, and jinja2 will use this set instead
+def get_thumb_crow_set(username, cursor):
+    thumbnail_row_set = []
     client = boto3.client('s3')
+    for i in range(cursor.rowcount):
+        row = cursor.fetchone()
+        img_id = row[0]
+        filename = row[2]
 
-    file_key = username + "/thumbnail_" + filename
-    params = {
-        'Bucket': config.bucket_name,
-        'Key': file_key
-    }
-    url = client.generate_presigned_url('get_object',
+        file_key = username + "/thumbnail_" + filename
+        params = {
+            'Bucket': config.bucket_name,
+            'Key': file_key
+        }
+        url = client.generate_presigned_url('get_object',
                                         params,
                                         ExpiresIn=3600
                                         )
+        print("url thumbnail is: ", url)
+        thumbnail_row_set.append([img_id,url, filename])
+
+    for s in thumbnail_row_set:
+        print("printing thumbnail-row-set")
+        print(s[1])
     # for debugging
-    print(url + "\nreturned\n")
-    return url
+    return thumbnail_row_set
 
 
 @webapp.route('/home/<username>/logout', methods=['GET'])

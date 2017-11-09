@@ -30,24 +30,22 @@ input[type=submit]:hover{
     </div>
 
     <ul>
-        {% for row in cursor %}
+        {% for row in set %}
+
             <li class="photo_list">
                 <div class="photo_item">
                     <div class="photo_thumbnail">
-                        <a href="{{url_for('image_display', username=username, img_id=row[0])}}" target="_blank">
-                            <!--<img src="{{url_for('static', filename='photos/'+username+'/thumbnail_'+row[2])}}"-->
-                                 <!--alt="thumbnail" style="width:150px;height:150px;">-->
-                            <img src= {{url_for('get_s3_thumbnail', username=username, img_id=row[0])}}
+                        <a href={{url_for('image_display', username=username, img_id=row[0])}} target="_blank">
+                            <img src="{{row[1]}}"
                                  style="width:150px;height:150px;">
                         </a>
                     </div>
                     <div class="photo_name">
-                        <h5><span style="color:blue">Title: </span> {{ row[1] }}</h5>
+                        <h5><span style="color:blue">Title: </span> {{ row[2] }}</h5>
                     </div>
                 </div>
             </li>
         {% endfor %}
     </ul>
-
 
 {% endblock %}
